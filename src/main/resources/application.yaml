@@ -1,3 +1,22 @@
 spring:
   application:
     name: tableLink
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/${SCHEMA_NAME}
+    username: root
+    password: ${LOCAL_DB_PW}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+jwt:
+  secret: ${SECRET_KEY}
+
+
