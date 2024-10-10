@@ -44,4 +44,11 @@ public class User extends BaseEntity {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public void updateUser(String password, String phoneNumber, String address, String nickname){
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.nickname = nickname;
+    }
 }

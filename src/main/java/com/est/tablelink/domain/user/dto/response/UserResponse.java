@@ -3,19 +3,22 @@ package com.est.tablelink.domain.user.dto.response;
 import com.est.tablelink.domain.user.domain.User;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Builder
 @Getter
-public class UserResponseDto {
+@Setter
+public class UserResponse {
 
     private String username;
     private String password;
     private String phoneNumber;
     private String address;
     private String nickname;
+    private String token;
 
-    public static UserResponseDto toDto(User user) {
-        return UserResponseDto.builder()
+    public static UserResponse toDto(User user) {
+        return UserResponse.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
                 .phoneNumber(user.getPhoneNumber())
