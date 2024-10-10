@@ -6,15 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * DTO for {@link com.est.tablelink.domain.user.domain.User}
  */
 
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
+@Setter
 public class UpdateUserRequest implements Serializable {
 
     private String password;
