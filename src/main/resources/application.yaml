@@ -16,7 +16,13 @@ spring:
         format_sql: true
     show-sql: true
 
+logging:
+  level:
+    root: debug
+
 jwt:
   secret: ${SECRET_KEY}
+  expiration-time: ${EXPIRATION_TIME} # 1시간: 1 * 60 * 60 * 1000 = 3600000
+  refresh-expiration-time: ${REFRESH_EXPIATION_TIME} # 3시간: 3 * 60 * 60 * 1000 = 3600000
 
 
