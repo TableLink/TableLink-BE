@@ -4,10 +4,8 @@ import com.est.tablelink.domain.user.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -17,7 +15,7 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-public class CreateUserRequest {
+public class SignUpUserRequest {
 
     // RFC 5322 이메일 정규식 형태로 작성
     @Pattern(regexp = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+\\.[a-zA-z]{2,}$", message = "아이디는 이메일 형태로 입력해주세요.")

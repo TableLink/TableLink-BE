@@ -1,12 +1,15 @@
 package com.est.tablelink.domain.user.service;
 
 import com.est.tablelink.domain.user.domain.User;
-import com.est.tablelink.domain.user.dto.request.CreateUserRequest;
+import com.est.tablelink.domain.user.dto.request.SignInUserRequest;
+import com.est.tablelink.domain.user.dto.request.SignUpUserRequest;
 import com.est.tablelink.domain.user.dto.response.UserResponse;
 import com.est.tablelink.domain.user.repository.UserRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // 회원가입 메서드
     @Transactional
-    public User createUser(CreateUserRequest createUserRequest) {
-        return userRepository.save(createUserRequest.toEntity());
+    public User createUser(SignUpUserRequest signUpUserRequest) {
+        User user = signUpUserRequest.toEntity();
+        user.encodePassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
     // 아이디 중복 검사
@@ -34,6 +40,19 @@ public class UserService {
     public Boolean isNicknameDuplicate(String nickname) {
         Optional<User> user = userRepository.findByNickname(nickname);
         return user.isEmpty();
+    }
+
+    // 로그인 메서드
+    @Transactional(readOnly = true)
+    public User signinUser(SignInUserRequest signInUserRequest) {
+        User user = userRepository.findByUsername(signInUserRequest.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(signInUserRequest.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid password");
+        }
+
+        return user; // JWT 토큰 생성 로직으로 넘어가기 전에 사용자 정보를 반환
     }
 
 //    // 회원정보 수정
