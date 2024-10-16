@@ -9,10 +9,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.util.Collection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @Builder
@@ -45,7 +47,12 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    public void updateUser(String password, String phoneNumber, String address, String nickname){
+    // 연관 관계 편의 메서드
+    public void encodePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateUser(String password, String phoneNumber, String address, String nickname) {
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.address = address;
