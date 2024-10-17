@@ -1,5 +1,6 @@
 package com.est.tablelink.global.security.provider;
 
+import com.est.tablelink.global.security.service.CustomUserDetailsService;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,13 +18,28 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
+    private final CustomUserDetailsService customUserDetailsService;
     @Value("${jwt.secret}")
     private String secretKey;
 
     @Value("${jwt.expiration-time}")
     private Long expirationTime;
 
-    public String generateToken(UserDetails userDetails) {
+    @Value("${jwt.refresh-expiration-time}")
+    private Long refreshExpirationTime;
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationTime))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
                 .setClaims(claims)
@@ -34,6 +50,16 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public Map<String, String> generateTokens(UserDetails userDetails){
+        String accessToken = generateAccessToken(userDetails);
+        String refreshToken = generateRefreshToken(userDetails);
+
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
+        return tokens;
+    }
+
     public String getUsernameFromToken(String token) {
         try {
             return Jwts.parser()
@@ -42,7 +68,7 @@ public class JwtTokenProvider {
                     .getBody()
                     .getSubject();
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
+            log.error("Error message: {}", e.getMessage());
             return null;
         }
     }
@@ -52,7 +78,7 @@ public class JwtTokenProvider {
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
@@ -61,4 +87,12 @@ public class JwtTokenProvider {
                 .before(new Date());
     }
 
+    public String refreshAccessToken(String refreshToken){
+        String username = getUsernameFromToken(refreshToken);
+        if (username != null && !isTokenExpired(refreshToken)){
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            return generateTokens(userDetails).toString();
+        }
+        throw new IllegalArgumentException("Invalid or expired refresh token");
+    }
 }

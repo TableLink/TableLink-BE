@@ -17,8 +17,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
 @Entity
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class User extends BaseEntity {
@@ -46,6 +44,16 @@ public class User extends BaseEntity {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Builder
+    public User(String username, String password, String phoneNumber, String address,
+            String nickname) {
+        this.username = username;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.nickname = nickname;
+    }
 
     // 연관 관계 편의 메서드
     public void encodePassword(String password) {

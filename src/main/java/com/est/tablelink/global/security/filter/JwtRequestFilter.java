@@ -31,6 +31,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // Authorization 헤더에서 JWT 토큰 추출
         String authorizationHeader = request.getHeader("Authorization");
+        String refreshTokenHeader = request.getHeader("Refresh-Token");
         String token = null;
         String username = null;
 
@@ -45,6 +46,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             token = authorizationHeader.substring(7);
             try {
                 username = jwtTokenProvider.getUsernameFromToken(token);
+                if (username == null) {
+                    log.error("Username is null after extracting from token");
+                }
             } catch (Exception e) {
                 log.error("JWT 토큰 검증 오류: {}", e.getMessage());
             }
@@ -62,6 +66,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 authentication.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else if (refreshTokenHeader != null) {
+                if (jwtTokenProvider.isTokenExpired(refreshTokenHeader)){
+                    log.error("Refresh token is expired");
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Refresh token is expired");
+                    return;
+                }
             }
         }
 
