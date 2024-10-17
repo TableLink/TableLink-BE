@@ -16,6 +16,7 @@ public class UserResponse {
     private String phoneNumber;
     private String address;
     private String nickname;
+    private Role role;
 
     public static UserResponse toDto(User user) {
         return UserResponse.builder()
@@ -24,6 +25,7 @@ public class UserResponse {
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
                 .nickname(user.getNickname())
+                .role(user.getRole())
                 .build();
     }
 }
