@@ -56,7 +56,7 @@ public class UserService {
     }
 
     // 로그인 메서드
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<String, String> signinUser(SignInUserRequest signInUserRequest) {
         User user = userRepository.findByUsername(signInUserRequest.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -84,14 +84,17 @@ public class UserService {
     // db에 토큰 저장
     private void saveRefreshToken(User user, String refreshToken) {
         // Refresh Token 저장 로직 (예: Repository를 사용하여 DB에 저장)
-        RefreshToken token = new RefreshToken(user.getUsername(), refreshToken);
+        RefreshToken token = RefreshToken.builder()
+                .refreshTokenValue(refreshToken)
+                .user(user)
+                .build();
         refreshTokenRepository.save(token);
     }
 
-    // 로그아웃 메서드
+    /*// 로그아웃 메서드
     @Transactional
     public void logoutUser(String refreshToken) {
-        RefreshToken token = refreshTokenRepository.findByRefreshTokenKey(refreshToken)
+        RefreshToken token = refreshTokenRepository.findById(refreshToken)
                 .orElseThrow(() -> new RuntimeException("Refresh token not found"));
         refreshTokenRepository.delete(token);
     }
@@ -101,7 +104,7 @@ public class UserService {
             return bearerToken.substring(7);
         }
         return null;
-    }
+    }*/
 
 //    // 회원정보 수정
 //    @Transactional
@@ -122,11 +125,11 @@ public class UserService {
 //        return UserResponseDto.toDto(updatedUser);
 //    }
 
-    public UserResponse getUserResponseDtoByUserName(String username) {
+/*    public UserResponse getUserResponseDtoByUserName(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         return UserResponse.toDto(user);
-    }
+    }*/
 
 
 }
