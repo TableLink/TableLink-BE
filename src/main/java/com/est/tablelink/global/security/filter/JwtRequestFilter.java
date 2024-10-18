@@ -41,6 +41,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("Authorization Header: {}", authorizationHeader); // 헤더 값 확인
+
         // Bearer 토큰 형식이 맞는지 확인
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             token = authorizationHeader.substring(7);
