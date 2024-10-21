@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @RequiredArgsConstructor
@@ -19,7 +20,15 @@ public class CustomLogoutHandler implements LogoutHandler {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
+    private String resolveToken(String authorization) {
+        if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer ")) {
+            return authorization.substring(7);
+        }
+        return null;
+    }
+
     @Override
+    @Transactional
     public void logout(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) {
         String token = resolveToken(request.getHeader("Authorization"));
@@ -38,12 +47,5 @@ public class CustomLogoutHandler implements LogoutHandler {
         } else {
             log.warn("No token found in Authorization header");
         }
-    }
-
-    private String resolveToken(String authorization) {
-        if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer ")) {
-            return authorization.substring(7);
-        }
-        return null;
     }
 }
