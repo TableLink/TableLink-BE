@@ -5,6 +5,7 @@ import com.est.tablelink.domain.user.dto.request.SignInUserRequest;
 import com.est.tablelink.domain.user.dto.request.SignUpUserRequest;
 import com.est.tablelink.domain.user.dto.response.UserResponse;
 import com.est.tablelink.domain.user.service.UserService;
+import com.est.tablelink.domain.user.util.Role;
 import com.est.tablelink.global.security.handler.CustomLogoutHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/user")
+@CrossOrigin(origins = "http://localhost:8081")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -39,6 +42,8 @@ public class UserController {
         if (!userService.isNicknameDuplicate(signUpUserRequest.getNickname())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
+
+        signUpUserRequest.setRole(Role.USER);
         User createdUser = userService.createUser(signUpUserRequest);
         UserResponse userResponse = UserResponse.toDto(createdUser);
 
@@ -53,7 +58,7 @@ public class UserController {
         return ResponseEntity.ok(tokens);
     }
 
-    @PostMapping("/logout")
+    /*@PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
 
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
@@ -64,7 +69,7 @@ public class UserController {
         customLogoutHandler.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
 
         return ResponseEntity.ok("Logout successful");
-    }
+    }*/
 
     /*
     // 로그인

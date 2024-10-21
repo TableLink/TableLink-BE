@@ -1,6 +1,7 @@
 package com.est.tablelink.domain.user.dto.request;
 
 import com.est.tablelink.domain.user.domain.User;
+import com.est.tablelink.domain.user.util.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -35,6 +36,8 @@ public class SignUpUserRequest {
     private String address;
     private String nickname;
 
+    private Role role;
+
     public User toEntity() {
         return User.builder()
                 .username(username)
@@ -42,6 +45,7 @@ public class SignUpUserRequest {
                 .phoneNumber(phoneNumber)
                 .address(address)
                 .nickname(nickname)
+                .role(role)
                 .build();
     }
 }
