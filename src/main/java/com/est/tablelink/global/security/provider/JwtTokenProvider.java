@@ -1,15 +1,19 @@
 package com.est.tablelink.global.security.provider;
 
+import com.est.tablelink.global.security.service.CustomUserDetails;
 import com.est.tablelink.global.security.service.CustomUserDetailsService;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +45,13 @@ public class JwtTokenProvider {
 
     public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+
+        if (userDetails instanceof CustomUserDetails) {
+            CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+            claims.put("role", customUserDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList()));
+        }
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
@@ -50,7 +61,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public Map<String, String> generateTokens(UserDetails userDetails){
+    public Map<String, String> generateTokens(UserDetails userDetails) {
         String accessToken = generateAccessToken(userDetails);
         String refreshToken = generateRefreshToken(userDetails);
 
@@ -87,9 +98,9 @@ public class JwtTokenProvider {
                 .before(new Date());
     }
 
-    public String refreshAccessToken(String refreshToken){
+    public String refreshAccessToken(String refreshToken) {
         String username = getUsernameFromToken(refreshToken);
-        if (username != null && !isTokenExpired(refreshToken)){
+        if (username != null && !isTokenExpired(refreshToken)) {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
             return generateTokens(userDetails).toString();
         }

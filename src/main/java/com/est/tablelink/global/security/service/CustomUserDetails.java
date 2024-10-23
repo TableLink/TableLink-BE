@@ -1,5 +1,6 @@
 package com.est.tablelink.global.security.service;
 
+import com.est.tablelink.domain.user.domain.User;
 import com.est.tablelink.domain.user.dto.response.UserResponse;
 import java.util.Collection;
 import java.util.List;
@@ -13,10 +14,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class CustomUserDetails implements UserDetails {
 
     private final UserResponse userResponse;
+    private final List<GrantedAuthority> authorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return authorities;
     }
 
     @Override
