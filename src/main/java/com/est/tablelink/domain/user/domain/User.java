@@ -47,12 +47,13 @@ public class User extends BaseEntity {
 
     @Builder
     public User(String username, String password, String phoneNumber, String address,
-            String nickname) {
+            String nickname, Role role) {
         this.username = username;
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.nickname = nickname;
+        this.role = role;
     }
 
     // 연관 관계 편의 메서드
