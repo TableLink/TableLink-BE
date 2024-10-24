@@ -18,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -94,10 +96,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 
-    // 회원정보 수정 로직
-    @PostMapping("/update")
+    // 회원정보 수정
+    @PatchMapping("/update")
     public ResponseEntity<ApiResponse<String>> updateUser(
-            @RequestBody UpdateUserRequest updateUserRequest) {
+            @Valid @RequestBody UpdateUserRequest updateUserRequest) {
         String newAccessToken = userService.updateUser(updateUserRequest);
         ApiResponse<String> apiResponse = ApiResponse.<String>builder()
                 .result(newAccessToken)
@@ -105,5 +107,17 @@ public class UserController {
                 .resultMsg("회원정보 수정 성공")
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser(){
+        userService.deleteUser();
+        ApiResponse<String> apiResponse = ApiResponse.<String>builder()
+                .result("회원 탈퇴 성공")
+                .resultCode(HttpStatus.OK.value())
+                .resultMsg("회원 탈퇴 성공")
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse.getResult());
     }
 }
