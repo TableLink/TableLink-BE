@@ -33,7 +33,10 @@ public class SignUpUserRequest {
     @Pattern(regexp = "^\\d{3}-\\d{3,4}-\\d{4}$", message = "전화번호 양식에 맞게 작성해 주세요.")
     private String phoneNumber;
 
+    @NotBlank(message = "빈칸이 들어갈 수 없습니다.")
     private String address;
+
+    @NotBlank(message = "빈칸이 들어갈 수 없습니다.")
     private String nickname;
 
     private Role role;
