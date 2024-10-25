@@ -21,4 +21,13 @@ jwt:
   expiration-time: ${EXPIRATION_TIME} # 1시간: 1 * 60 * 60 * 1000 = 3600000
   refresh-expiration-time: ${REFRESH_EXPIATION_TIME} # 3시간: 3 * 60 * 60 * 1000 = 3600000
 
+springdoc:
+  api-docs:
+    path: /v1/api-docs
+  swagger-ui:
+    groups-order: DESC # path, query, body, response 순으로 출력
+    tags-sorter: alpha # 알파벳 순으로 정렬
+  paths-to-match:
+    - /api/** # swagger-ui에 표시할 api의 엔드포인트 패턴
+
 
