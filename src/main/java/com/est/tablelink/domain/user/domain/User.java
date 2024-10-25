@@ -1,5 +1,6 @@
 package com.est.tablelink.domain.user.domain;
 
+import com.est.tablelink.domain.post.domain.Post;
 import com.est.tablelink.domain.user.util.BaseEntity;
 import com.est.tablelink.domain.user.util.Role;
 import jakarta.persistence.Column;
@@ -9,16 +10,19 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.util.Collection;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @NoArgsConstructor
 @Getter
+@Table(name = "user", indexes = @Index(name = "idx_username", columnList = "username"))
 public class User extends BaseEntity {
 
     @Id
@@ -67,4 +71,8 @@ public class User extends BaseEntity {
         this.address = address;
         this.nickname = nickname;
     }
+
+    // 매핑
+    @OneToMany(mappedBy = "author")
+    public List<Post> posts = new ArrayList<>();
 }
