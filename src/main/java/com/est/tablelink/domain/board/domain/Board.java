@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,9 +26,14 @@ public class Board {
     @Column(name = "id")
     private Long id;
 
-    @Column(unique = true)
-    private String name;  // 게시판 이름 (예: 자유게시판, 음식점 소개 게시판, 맛집 공유 게시판)
+    @Column(name = "board_name")
+    private String boardName;  // 게시판 이름 (예: 자유게시판, 음식점 소개 게시판, 맛집 공유 게시판)
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
+
+    @Builder
+    public Board(String boardName) {
+        this.boardName = boardName;
+    }
 }

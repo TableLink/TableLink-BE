@@ -17,7 +17,7 @@ public class DetailPostResponse {
     private Content content; // 게시글 내용
     private LocalDateTime createdAt; // 게시글 생성 일시
 
-    public DetailPostResponse toDto(Post post){
+    public static DetailPostResponse toDto(Post post){
         return DetailPostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())

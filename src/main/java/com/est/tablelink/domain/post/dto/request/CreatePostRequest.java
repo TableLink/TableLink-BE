@@ -1,13 +1,9 @@
 package com.est.tablelink.domain.post.dto.request;
 
-import com.est.tablelink.domain.board.domain.Board;
 import com.est.tablelink.domain.post.domain.Content;
 import com.est.tablelink.domain.post.domain.Post;
-import com.est.tablelink.domain.user.domain.User;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
