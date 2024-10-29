@@ -99,8 +99,7 @@ public class UserService {
     // 회원정보 수정
     @Transactional
     public String updateUser(UpdateUserRequest updateUserRequest) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = ((CustomUserDetails) authentication.getPrincipal()).getUserResponse()
+        String username = ((CustomUserDetails) getAuthentication().getPrincipal()).getUserResponse()
                 .getUsername();
 
         User user = getUser(username);
@@ -125,9 +124,8 @@ public class UserService {
     // 회원 탈퇴 메서드
     @Transactional
     public void deleteUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String username = ((CustomUserDetails) authentication.getPrincipal()).getUserResponse()
+        String username = ((CustomUserDetails) getAuthentication().getPrincipal()).getUserResponse()
                 .getUsername();
 
         User user = getUser(username);
@@ -136,6 +134,12 @@ public class UserService {
         refreshTokenRepository.deleteByUserUsername(username);
         // 유저 삭제
         userRepository.delete(user);
+    }
+
+    // 인증 정보 확인
+    @Transactional(readOnly = true)
+    public Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 
     // 유저 조회

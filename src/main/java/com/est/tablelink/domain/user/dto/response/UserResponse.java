@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class UserResponse {
 
+    private Long id;
     private String username;
     private String password;
     private String phoneNumber;
@@ -20,6 +21,7 @@ public class UserResponse {
 
     public static UserResponse toDto(User user) {
         return UserResponse.builder()
+                .id(user.getId())
                 .username(user.getUsername())
                 .password(user.getPassword())
                 .phoneNumber(user.getPhoneNumber())
