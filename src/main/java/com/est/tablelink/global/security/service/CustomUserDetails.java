@@ -1,6 +1,5 @@
 package com.est.tablelink.global.security.service;
 
-import com.est.tablelink.domain.user.domain.User;
 import com.est.tablelink.domain.user.dto.response.UserResponse;
 import java.util.Collection;
 import java.util.List;
@@ -49,5 +48,10 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    // Getter 메서드...
+    public Long getId() {
+        return userResponse.getId();
     }
 }

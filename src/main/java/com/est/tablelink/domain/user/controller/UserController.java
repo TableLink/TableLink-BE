@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 @CrossOrigin(origins = "http://localhost:8081")
 @RequiredArgsConstructor
-@Tag(name = "User Controller", description = "User related API")
+@Tag(name = "User Controller", description = "사용자 관련 API")
 public class UserController {
 
     private final UserService userService;
@@ -164,13 +164,13 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<String> deleteUser() {
+    public ResponseEntity<ApiResponse<String>> deleteUser() {
         userService.deleteUser();
         ApiResponse<String> apiResponse = ApiResponse.<String>builder()
                 .result("회원 탈퇴 성공")
                 .resultCode(HttpStatus.OK.value())
                 .resultMsg("회원 탈퇴 성공")
                 .build();
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse.getResult());
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 }
