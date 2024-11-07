@@ -49,11 +49,21 @@ public class Post extends BaseEntity {
     }
 
     @Builder
-    public Post(Long id, String title, User author, Board board, Content content){
+    public Post(Long id, String title, User author, Board board, Content content) {
         this.id = id;
         this.title = title;
         this.author = author;
         this.board = board;
+        this.content = content;
+    }
+
+    // 게시글 업데이트
+    public void updatePost(String title, Content content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public void setContent(Content content) {
         this.content = content;
     }
 }

@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,5 +33,12 @@ public class Content {
 
     @Lob
     @Column(name = "image")
-    private byte[] image; // 이미지 데이터
+    private String image; // 이미지 데이터
+
+    @Builder
+    public Content(String text, Post post, String image){
+        this.text = text;
+        this.post = post;
+        this.image = image;
+    }
 }

@@ -25,6 +25,6 @@ public class BoardService {
     @Transactional(readOnly = true)
     public Boolean isBoardNameDuplicate(String boardName) {
         Optional<Board> board = boardRepository.findByBoardName(boardName);
-        return board.isEmpty();
+        return board.isPresent();
     }
 }

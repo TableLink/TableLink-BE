@@ -9,20 +9,21 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class DetailPostResponse {
-    private Long id; // 게시글 id
-    private String title; // 게시글 제목
-    private String author; // 게시글 작성자 닉네임
-    private String content; // 게시글 내용
-    private LocalDateTime createdAt; // 게시글 생성 일시
+public class SummaryPostResponse {
 
-    public static DetailPostResponse toDto(Post post, String content){
-        return DetailPostResponse.builder()
+    private Long id;
+    private String title;
+    private String author;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public static SummaryPostResponse toDto(Post post) {
+        return SummaryPostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .author(post.getAuthor().getNickname())
-                .content(content)
                 .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
                 .build();
     }
 }
