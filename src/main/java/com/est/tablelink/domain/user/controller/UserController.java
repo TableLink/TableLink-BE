@@ -90,8 +90,6 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 입력 데이터",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패: 잘못된 사용자명 또는 비밀번호",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<ApiResponse<Map<String, String>>> signinUser(
@@ -106,7 +104,7 @@ public class UserController {
     }
 
     // 회원 정보 상세 조회
-    @GetMapping("/details")
+    @GetMapping
     @Operation(summary = "회원 정보 상세 조회", description = "일반 사용자가 본인의 상세 정보를 조회 할 때 사용하는 API")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "회원 정보 조회 성공",
@@ -130,7 +128,7 @@ public class UserController {
     }
 
     // 회원정보 수정
-    @PatchMapping("/update")
+    @PatchMapping
     @Operation(summary = "회원 정보 수정", description = "일반 사용자가 본인의 비밀번호, 전화번호, 주소, 닉네임 등을 수정 할 때 사용하는 API")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "회원정보 수정 성공",
@@ -154,7 +152,7 @@ public class UserController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("/delete")
+    @DeleteMapping
     @Operation(summary = "회원 탈퇴", description = "일반 사용자가 회원 탈퇴 할 때 사용하는 API")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "회원 탈퇴 성공",

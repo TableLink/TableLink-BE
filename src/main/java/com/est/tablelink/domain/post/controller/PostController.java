@@ -32,7 +32,7 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping("/create/post")
+    @PostMapping
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "게시글 생성", description = "인증된 사용자가 게시판을 생성할 때 사용하는 API")
     @ApiResponses(value = {
@@ -50,7 +50,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(successApi);
     }
 
-    @GetMapping("/list/{boardId}")
+    @GetMapping("/{boardId}/list")
     @Operation(summary = "게시글 목록 조회", description = "게시판 ID로 게시글 목록을 조회합니다.")
     public ResponseEntity<ApiResponse<List<SummaryPostResponse>>> getPostList(
             @PathVariable Long boardId) {
@@ -59,6 +59,20 @@ public class PostController {
                 .result(summaryPostResponseList)
                 .resultCode(HttpStatus.OK.value())
                 .resultMsg("게시글 리스트 불러오기 성공")
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(successApi);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<DetailPostResponse>> getPostDetail(
+            @PathVariable Long id) {
+        String content = "";
+        DetailPostResponse detailPostResponse = postService.getPostDetail( id, content);
+        ApiResponse<DetailPostResponse> successApi = ApiResponse.<DetailPostResponse>builder()
+                .result(detailPostResponse)
+                .resultCode(HttpStatus.OK.value())
+                .resultMsg("게시글 상세 불러오기 성공")
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(successApi);
     }

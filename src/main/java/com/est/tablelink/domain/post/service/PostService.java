@@ -14,6 +14,7 @@ import com.est.tablelink.domain.user.repository.UserRepository;
 import com.est.tablelink.domain.user.service.UserService;
 import com.est.tablelink.global.security.service.CustomUserDetails;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -68,10 +69,26 @@ public class PostService {
     // 게시글 리스트 조회 불러오기 메서드
     @Transactional(readOnly = true)
     public List<SummaryPostResponse> getPostList(Long boardId) {
-        List<Post> postList = postRepository.findAll();
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new NoSuchElementException("게시판이 존재하지 않습니다."));
+
+        List<Post> postList = postRepository.findByBoardId(board.getId());
 
         return postList.stream()
                 .map(SummaryPostResponse::toDto)
                 .collect(Collectors.toList());
+    }
+
+    // 게시글 상세 불러오기
+    @Transactional(readOnly = true)
+    public DetailPostResponse getPostDetail(Long id, String content) {
+        Post post = getPost(id);
+        return DetailPostResponse.toDto(post, content);
+    }
+
+    private Post getPost(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("게시글을 찾을 수 없습니다."));
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +32,7 @@ public class BoardController {
     private final BoardService boardService;
 
     // 게시판 생성
-    @PostMapping("/create/board")
+    @PostMapping
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "게시판 생성", description = "인증된 사용자가 게시판을 생성할 때 사용하는 API")
     @ApiResponses(value = {
@@ -45,7 +46,7 @@ public class BoardController {
                     , content = @Content(schema = @Schema(implementation = BoardResponse.class))),
     })
     public ResponseEntity<ApiResponse<BoardResponse>> createBoard(
-            @RequestBody CreateBoardRequest createBoardRequest) {
+            @Valid @RequestBody CreateBoardRequest createBoardRequest) {
 
         // 중복된 게시판 이름 체크
         if (boardService.isBoardNameDuplicate(createBoardRequest.getBoardName())) {
@@ -67,8 +68,21 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(successResponse);
     }
 
-    /*// 게시판 삭제
-    public ResponseEntity<ApiResponse<String>> deleteBoard() {
-        boardService.deleteBoard();
-    }*/
+    // 게시판 삭제
+    @DeleteMapping
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "게시판 삭제", description = "인증된 사용자가 기존에 생성 되어있는 게시판을 삭제 합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "게시판 삭제 성공"
+                    , content = @Content(schema = @Schema(implementation = BoardResponse.class)))
+    })
+    public ResponseEntity<ApiResponse<String>> deleteBoard(@Valid Long id) {
+        boardService.deleteBoard(id);
+        ApiResponse<String> apiResponse = ApiResponse.<String>builder()
+                .result("게시판 삭제 성공")
+                .resultCode(HttpStatus.OK.value())
+                .resultMsg("게시판 삭제 성공")
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+    }
 }
