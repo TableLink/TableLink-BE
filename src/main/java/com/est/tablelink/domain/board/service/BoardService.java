@@ -4,6 +4,7 @@ import com.est.tablelink.domain.board.domain.Board;
 import com.est.tablelink.domain.board.dto.request.CreateBoardRequest;
 import com.est.tablelink.domain.board.repository.BoardRepository;
 import com.est.tablelink.domain.user.domain.User;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -38,8 +39,13 @@ public class BoardService {
     }
 
     // 게시판 조회
-    private Board getBoard(Long id){
+    private Board getBoard(Long id) {
         return boardRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("요청한 데이터가 존재하지 않습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Board> getBoardList() {
+        return boardRepository.findAll();
     }
 }

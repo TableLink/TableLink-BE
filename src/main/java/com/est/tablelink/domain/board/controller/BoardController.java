@@ -11,12 +11,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -83,6 +86,23 @@ public class BoardController {
                 .resultCode(HttpStatus.OK.value())
                 .resultMsg("게시판 삭제 성공")
                 .build();
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+    }
+
+    // 게시판 리스트
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<BoardResponse>>> getBoardList(){
+        List<Board> boardList = boardService.getBoardList();
+        List<BoardResponse> boardResponseList = boardList.stream()
+                .map(BoardResponse::toDto)
+                .toList();
+
+        ApiResponse<List<BoardResponse>> apiResponse = ApiResponse.<List<BoardResponse>>builder()
+                .result(boardResponseList)
+                .resultCode(HttpStatus.OK.value())
+                .resultMsg("게시판 리스트 불러오기 성공")
+                .build();
+
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 }

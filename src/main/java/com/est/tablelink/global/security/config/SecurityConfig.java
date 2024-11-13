@@ -45,7 +45,7 @@ public class SecurityConfig {
         http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/user/signup", "/api/user/signin")
+                        .requestMatchers("/api/user/signup", "/api/user/signin", "/api/board/list", "/api/post/{boardId}/list")
                         .permitAll()
                         .requestMatchers("/api/user")
                         .hasAnyRole("USER", "ADMIN")

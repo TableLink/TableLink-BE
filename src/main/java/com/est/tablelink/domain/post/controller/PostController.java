@@ -5,6 +5,7 @@ import com.est.tablelink.domain.post.dto.response.DetailPostResponse;
 import com.est.tablelink.domain.post.dto.response.SummaryPostResponse;
 import com.est.tablelink.domain.post.service.PostService;
 import com.est.tablelink.global.common.ApiResponse;
+import com.est.tablelink.global.common.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -37,7 +38,10 @@ public class PostController {
     @Operation(summary = "게시글 생성", description = "인증된 사용자가 게시판을 생성할 때 사용하는 API")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "게시글 생성 성공"
-                    , content = @Content(schema = @Schema(implementation = DetailPostResponse.class)))
+                    , content = @Content(schema = @Schema(implementation = DetailPostResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"
+                    , content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+
     })
     public ResponseEntity<ApiResponse<DetailPostResponse>> createPost(
             @RequestBody CreatePostRequest createPostRequest) {
@@ -52,6 +56,10 @@ public class PostController {
 
     @GetMapping("/{boardId}/list")
     @Operation(summary = "게시글 목록 조회", description = "게시판 ID로 게시글 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "게시글 조회 성공"
+                    , content = @Content(schema = @Schema(implementation = SummaryPostResponse.class)))
+    })
     public ResponseEntity<ApiResponse<List<SummaryPostResponse>>> getPostList(
             @PathVariable Long boardId) {
         List<SummaryPostResponse> summaryPostResponseList = postService.getPostList(boardId);
@@ -68,7 +76,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<DetailPostResponse>> getPostDetail(
             @PathVariable Long id) {
         String content = "";
-        DetailPostResponse detailPostResponse = postService.getPostDetail( id, content);
+        DetailPostResponse detailPostResponse = postService.getPostDetail(id, content);
         ApiResponse<DetailPostResponse> successApi = ApiResponse.<DetailPostResponse>builder()
                 .result(detailPostResponse)
                 .resultCode(HttpStatus.OK.value())
