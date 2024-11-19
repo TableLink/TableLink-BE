@@ -2,6 +2,8 @@ package com.est.tablelink.domain.post.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,22 +25,21 @@ public class Content {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "text")
+    @Column(name = "data")
     @Lob
-    private String text; // 글
+    private String data; // 글
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;  // 게시글과 1:1 관계
 
-    @Lob
-    @Column(name = "image")
-    private String image; // 이미지 데이터
-
     @Builder
-    public Content(String text, Post post, String image){
-        this.text = text;
+    public Content(String data, Post post, String image) {
+        this.data = data;
         this.post = post;
-        this.image = image;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
     }
 }

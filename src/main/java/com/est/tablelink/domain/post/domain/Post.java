@@ -14,6 +14,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,7 +43,7 @@ public class Post extends BaseEntity {
     private Board board; // 게시판 id
 
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Content content; // 게시글 내용
+    private Content content; // 게시글 내용(여러 개의 콘텐츠)
 
     // 작성자 검증 메서드 (삭제 권한 체크 등)
     public boolean canModifyOrDelete(User user) {
@@ -63,7 +65,9 @@ public class Post extends BaseEntity {
         this.content = content;
     }
 
-    public void setContent(Content content) {
-        this.content = content;
-    }
+//    // 게시글 내용 추가
+//    public void addContent(Content content) {
+//        this.content(content);
+//        content.setPost(this);
+//    }
 }

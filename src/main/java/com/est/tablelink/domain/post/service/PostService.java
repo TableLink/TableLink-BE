@@ -40,30 +40,19 @@ public class PostService {
 
         User user = userRepository.findById(user_id)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자 입니다."));
-        Board board = boardRepository.findById(createPostRequest.getBoard())
+        Board board = boardRepository.findById(createPostRequest.getBoardId())
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 게시판 입니다."));
-        if (user == null) {
-            throw new IllegalStateException("User is nullish.");
-        }
-        Post post = createPostRequest.toEntity(user, board);
 
+        Post post = createPostRequest.toEntity(user, board);
         postRepository.save(post);
-        if (createPostRequest.getContentText() != null || createPostRequest.getContentImage() != null) {
-            // 게시글에 이미 Content가 있는지 확인
-            if (contentRepository.existsByPost(post)) {
-                throw new IllegalArgumentException("이미 Content가 존재합니다.");
-            }
+
             Content content = Content.builder()
-                    .text(createPostRequest.getContentText())
-                    .image(createPostRequest.getContentImage())
+                    .data(createPostRequest.getContentData())
                     .post(post)
                     .build();
             contentRepository.save(content);
-        }
-        String contentText =
-                createPostRequest.getContentText() != null ? createPostRequest.getContentText()
-                        : createPostRequest.getContentImage();
-        return DetailPostResponse.toDto(post, contentText);
+
+        return DetailPostResponse.toDto(post,content);
     }
 
     // 게시글 리스트 조회 불러오기 메서드
@@ -82,7 +71,7 @@ public class PostService {
 
     // 게시글 상세 불러오기
     @Transactional(readOnly = true)
-    public DetailPostResponse getPostDetail(Long id, String content) {
+    public DetailPostResponse getPostDetail(Long id, Content content) {
         Post post = getPost(id);
         return DetailPostResponse.toDto(post, content);
     }
