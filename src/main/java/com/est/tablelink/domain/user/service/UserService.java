@@ -3,9 +3,10 @@ package com.est.tablelink.domain.user.service;
 import com.est.tablelink.domain.token.domain.RefreshToken;
 import com.est.tablelink.domain.token.repository.RefreshTokenRepository;
 import com.est.tablelink.domain.user.domain.User;
-import com.est.tablelink.domain.user.dto.request.SignInUserRequest;
-import com.est.tablelink.domain.user.dto.request.SignUpUserRequest;
-import com.est.tablelink.domain.user.dto.request.UpdateUserRequest;
+import com.est.tablelink.domain.user.dto.request.admin.SignUpAdminRequest;
+import com.est.tablelink.domain.user.dto.request.user.SignInUserRequest;
+import com.est.tablelink.domain.user.dto.request.user.SignUpUserRequest;
+import com.est.tablelink.domain.user.dto.request.user.UpdateUserRequest;
 import com.est.tablelink.domain.user.dto.response.UserResponse;
 import com.est.tablelink.domain.user.repository.UserRepository;
 import com.est.tablelink.domain.user.util.Role;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,6 +43,11 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
 
+    /**
+     * ==========================<br>
+     * User Registration Methods<br>
+     * ==========================
+     * */
     // 회원가입 메서드
     @Transactional
     public User createUser(SignUpUserRequest signUpUserRequest) {
@@ -49,59 +56,64 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // 관리자 회원가입 메서드
+    public User createdAdmin(SignUpAdminRequest signUpAdminRequest) {
+        User user = signUpAdminRequest.toEntity();
+        user.encodePassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
     // 아이디 중복 검사
     @Transactional(readOnly = true)
     public Boolean isUsernameDuplicate(String username) {
         Optional<User> user = userRepository.findByUsername(username);
-        return user.isEmpty();
+        return user.isPresent();
     }
 
     // 닉네임 중복 검사
     @Transactional(readOnly = true)
     public Boolean isNicknameDuplicate(String nickname) {
         Optional<User> user = userRepository.findByNickname(nickname);
-        return user.isEmpty();
+        return user.isPresent();
     }
 
-    // 로그인 메서드
+    /**
+     * ==========================<br>
+     * Sign-in Methods<br>
+     * ==========================
+     * */
+
+    // 일반 사용자 로그인 메서드
     @Transactional
     public Map<String, String> signinUser(SignInUserRequest signInUserRequest) {
-        User user = userRepository.findByUsername(signInUserRequest.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = getUser(signInUserRequest.getUsername());
+        validatePassword(signInUserRequest.getPassword(), user);
+        validateRole(user, Role.ADMIN);
 
-        if (!passwordEncoder.matches(signInUserRequest.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid password");
-        }
-
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
-
-        // Access Token과 Refresh Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
-
-        // Refresh Token을 DB에 저장하는 로직을 추가할 수 있습니다.
-        saveRefreshToken(user, refreshToken);
-
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", accessToken);
-        tokens.put("refreshToken", refreshToken);
-
-        return tokens;
+        return generateTokens(user);
     }
 
-    // 사용자 상세 정보 불러오기
+    // 관리자 로그인 메서드
     @Transactional
-    public UserResponse getUserDetails(String username) {
-        User user = getUser(username);
-        return UserResponse.toDto(user);
+    public Map<String, String> signinAdmin(SignInUserRequest signInUserRequest) {
+        User user = getUser(signInUserRequest.getUsername());
+        validatePassword(signInUserRequest.getPassword(), user);
+        validateRole(user, Role.USER);
+
+        return generateTokens(user);
     }
+
+    /**
+     * ==========================<br>
+     * User Update Methods<br>
+     * ==========================
+     * */
 
     // 회원정보 수정
     @Transactional
     public String updateUser(UpdateUserRequest updateUserRequest) {
         String username = ((CustomUserDetails) getAuthentication().getPrincipal()).getUserResponse()
                 .getUsername();
-
         User user = getUser(username);
 
         if (updateUserRequest.getPassword() != null && !updateUserRequest.getPassword().isEmpty()) {
@@ -121,6 +133,11 @@ public class UserService {
         return jwtTokenProvider.generateAccessToken(updatedUserDetails); // 새로 생성된 JWT 토큰 반환
     }
 
+    /**
+     * ==========================<br>
+     * User Deletion Methods<br>
+     * ==========================
+     * */
     // 회원 탈퇴 메서드
     @Transactional
     public void deleteUser() {
@@ -136,6 +153,12 @@ public class UserService {
         userRepository.delete(user);
     }
 
+
+    /**
+     * ==========================<br>
+     * User Helper Methods<br>
+     * ==========================
+     * */
     // 인증 정보 확인
     @Transactional(readOnly = true)
     public Authentication getAuthentication() {
@@ -165,4 +188,44 @@ public class UserService {
         authorities.add(new SimpleGrantedAuthority(role.getValue()));
         return authorities;
     }
+
+    // 권한 확인
+    private void validateRole(User user, Role role) {
+        if (user.getRole().equals(role)) {
+            throw new AccessDeniedException("해당 페이지에 로그인 할 수 없습니다.");
+        }
+    }
+
+    // 비밀번호 확인
+    private void validatePassword(String signInUserRequest, User user) {
+        if (!passwordEncoder.matches(signInUserRequest, user.getPassword())) {
+            throw new BadCredentialsException("Invalid password");
+        }
+    }
+
+    // 토큰 생성
+    private Map<String, String> generateTokens(User user) {
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+
+        // Access Token과 Refresh Token 생성
+        String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+
+        // Refresh Token을 DB에 저장하는 로직을 추가할 수 있습니다.
+        saveRefreshToken(user, refreshToken);
+
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
+
+        return tokens;
+    }
+
+    // 사용자 상세 정보 불러오기
+    @Transactional
+    public UserResponse getUserDetails(String username) {
+        User user = getUser(username);
+        return UserResponse.toDto(user);
+    }
+
 }

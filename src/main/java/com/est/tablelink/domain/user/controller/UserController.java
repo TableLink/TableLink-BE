@@ -1,9 +1,9 @@
 package com.est.tablelink.domain.user.controller;
 
 import com.est.tablelink.domain.user.domain.User;
-import com.est.tablelink.domain.user.dto.request.SignInUserRequest;
-import com.est.tablelink.domain.user.dto.request.SignUpUserRequest;
-import com.est.tablelink.domain.user.dto.request.UpdateUserRequest;
+import com.est.tablelink.domain.user.dto.request.user.SignInUserRequest;
+import com.est.tablelink.domain.user.dto.request.user.SignUpUserRequest;
+import com.est.tablelink.domain.user.dto.request.user.UpdateUserRequest;
 import com.est.tablelink.domain.user.dto.response.UserResponse;
 import com.est.tablelink.domain.user.service.UserService;
 import com.est.tablelink.domain.user.util.Role;
@@ -52,30 +52,30 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> signupUser(
             @Valid @RequestBody SignUpUserRequest signUpUserRequest) {
         ResponseEntity<ApiResponse<UserResponse>> result;
-        if (!userService.isUsernameDuplicate(signUpUserRequest.getUsername())) {
-            ApiResponse<UserResponse> apiResponse = ApiResponse.<UserResponse>builder()
+        if (userService.isUsernameDuplicate(signUpUserRequest.getUsername())) {
+            ApiResponse<UserResponse> errorResponse = ApiResponse.<UserResponse>builder()
                     .result(null)
                     .resultCode(HttpStatus.CONFLICT.value())
                     .resultMsg("이미 사용중인 아이디 입니다")
                     .build();
-            result = ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
-        } else if (!userService.isNicknameDuplicate(signUpUserRequest.getNickname())) {
-            ApiResponse<UserResponse> apiResponse = ApiResponse.<UserResponse>builder()
+            result = ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        } else if (userService.isNicknameDuplicate(signUpUserRequest.getNickname())) {
+            ApiResponse<UserResponse> errorResponse = ApiResponse.<UserResponse>builder()
                     .result(null)
                     .resultCode(HttpStatus.CONFLICT.value())
                     .resultMsg("이미 사용중인 닉네임 입니다")
                     .build();
-            result = ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
+            result = ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
         } else {
             signUpUserRequest.setRole(Role.USER);
             User createdUser = userService.createUser(signUpUserRequest);
             UserResponse userResponse = UserResponse.toDto(createdUser);
-            ApiResponse<UserResponse> apiResponse = ApiResponse.<UserResponse>builder()
+            ApiResponse<UserResponse> successResponse = ApiResponse.<UserResponse>builder()
                     .result(userResponse)
                     .resultCode(HttpStatus.CREATED.value())
                     .resultMsg("회원가입 성공")
                     .build();
-            result = ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+            result = ResponseEntity.status(HttpStatus.CREATED).body(successResponse);
         }
 
         return result;
@@ -90,17 +90,19 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 입력 데이터",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패: 잘못된 사용자명 또는 비밀번호",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자가 로그인 하려할때",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<ApiResponse<Map<String, String>>> signinUser(
             @Valid @RequestBody SignInUserRequest signInUserRequest) {
         Map<String, String> tokens = userService.signinUser(signInUserRequest);
-        ApiResponse<Map<String, String>> apiResponse = ApiResponse.<Map<String, String>>builder()
+        ApiResponse<Map<String, String>> successResponse = ApiResponse.<Map<String, String>>builder()
                 .result(tokens)
                 .resultCode(HttpStatus.OK.value())
                 .resultMsg("로그인 성공")
                 .build();
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.ok(successResponse);
     }
 
     // 회원 정보 상세 조회
@@ -119,12 +121,12 @@ public class UserController {
 
         UserResponse userResponse = userService.getUserDetails(username);
 
-        ApiResponse<UserResponse> apiResponse = ApiResponse.<UserResponse>builder()
+        ApiResponse<UserResponse> successResponse = ApiResponse.<UserResponse>builder()
                 .result(userResponse)
                 .resultCode(HttpStatus.OK.value())
                 .resultMsg("회원 정보 조회 성공")
                 .build();
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(successResponse);
     }
 
     // 회원정보 수정
@@ -143,12 +145,12 @@ public class UserController {
     public ResponseEntity<ApiResponse<String>> updateUser(
             @Valid @RequestBody UpdateUserRequest updateUserRequest) {
         String newAccessToken = userService.updateUser(updateUserRequest);
-        ApiResponse<String> apiResponse = ApiResponse.<String>builder()
+        ApiResponse<String> successResponse = ApiResponse.<String>builder()
                 .result(newAccessToken)
                 .resultCode(HttpStatus.OK.value())
                 .resultMsg("회원정보 수정 성공")
                 .build();
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(successResponse);
     }
 
     // 회원 탈퇴
@@ -164,11 +166,11 @@ public class UserController {
     })
     public ResponseEntity<ApiResponse<String>> deleteUser() {
         userService.deleteUser();
-        ApiResponse<String> apiResponse = ApiResponse.<String>builder()
+        ApiResponse<String> successResponse = ApiResponse.<String>builder()
                 .result("회원 탈퇴 성공")
                 .resultCode(HttpStatus.OK.value())
                 .resultMsg("회원 탈퇴 성공")
                 .build();
-        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(successResponse);
     }
 }

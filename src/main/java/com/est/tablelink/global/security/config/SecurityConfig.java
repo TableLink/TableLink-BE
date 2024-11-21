@@ -37,15 +37,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
             CustomLogoutHandler customLogoutHandler) throws Exception {
-            http
-                    .cors(cors -> corsConfigurationSource())
-                    .csrf(AbstractHttpConfigurer::disable)
-                    .formLogin(AbstractHttpConfigurer::disable)
-                    .httpBasic(AbstractHttpConfigurer::disable);
+        http
+                .cors(cors -> corsConfigurationSource())
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable);
         http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/user/signup", "/api/user/signin", "/api/board/list", "/api/post/{boardId}/list")
+                        .requestMatchers("/api/user/signup", "/api/user/signin", "/api/board/list",
+                                "/api/post/{boardId}/list", "/api/admin/signup",
+                                "/api/admin/signin")
                         .permitAll()
                         .requestMatchers("/api/user")
                         .hasAnyRole("USER", "ADMIN")

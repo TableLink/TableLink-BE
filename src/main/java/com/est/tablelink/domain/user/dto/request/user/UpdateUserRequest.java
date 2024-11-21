@@ -1,14 +1,10 @@
-package com.est.tablelink.domain.user.dto.request;
+package com.est.tablelink.domain.user.dto.request.user;
 
-import com.est.tablelink.domain.user.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
