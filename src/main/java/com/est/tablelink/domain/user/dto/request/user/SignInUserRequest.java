@@ -1,17 +1,15 @@
-package com.est.tablelink.domain.user.dto.request;
+package com.est.tablelink.domain.user.dto.request.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class SignInUserRequest {
 
     // RFC 5322 이메일 정규식 형태로 작성
