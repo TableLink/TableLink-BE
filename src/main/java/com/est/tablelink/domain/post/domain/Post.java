@@ -3,6 +3,7 @@ package com.est.tablelink.domain.post.domain;
 import com.est.tablelink.domain.board.domain.Board;
 import com.est.tablelink.domain.user.domain.User;
 import com.est.tablelink.domain.user.util.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +35,7 @@ public class Post extends BaseEntity {
     @Column(name = "title")
     private String title; // 제목
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author; // 작성자
 
@@ -42,8 +43,9 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "board_id", nullable = false)
     private Board board; // 게시판 id
 
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Content content; // 게시글 내용(여러 개의 콘텐츠)
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Content content; // 게시글 내용
 
     // 작성자 검증 메서드 (삭제 권한 체크 등)
     public boolean canModifyOrDelete(User user) {
@@ -62,7 +64,10 @@ public class Post extends BaseEntity {
     // 게시글 업데이트
     public void updatePost(String title, Content content) {
         this.title = title;
-        this.content = content;
+        // 새로 생성된 content가 있을 경우 연결
+        if (content != null) {
+            this.content = content;
+        }
     }
 
 //    // 게시글 내용 추가

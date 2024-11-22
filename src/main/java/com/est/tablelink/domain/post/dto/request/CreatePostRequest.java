@@ -25,8 +25,8 @@ public class CreatePostRequest {
 
     private Long boardId;
 
-    @NotBlank(message = "내용을 작성해 주세요.")
-    private String contentData; // 게시글 내용 (텍스트 또는 기타 데이터)
+//    @NotBlank(message = "내용을 작성해 주세요.")
+//    private String contentImage;
 
     public Post toEntity(User user, Board board) {
             return Post.builder()

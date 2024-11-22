@@ -1,5 +1,6 @@
 package com.est.tablelink.domain.post.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,15 +32,17 @@ public class Content {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
+    @JsonBackReference
     private Post post;  // 게시글과 1:1 관계
 
-    @Builder
-    public Content(String data, Post post, String image) {
-        this.data = data;
-        this.post = post;
-    }
+//    @Lob
+//    @Column(name = "image")
+//    private String image; // 이미지 데이터
 
-    public void setPost(Post post) {
+    @Builder
+    public Content(String text, Post post){
+        this.text = text;
         this.post = post;
+//        this.image = image;
     }
 }

@@ -75,8 +75,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<DetailPostResponse>> getPostDetail(
             @PathVariable Long id) {
-        String content = "";
-        DetailPostResponse detailPostResponse = postService.getPostDetail(id, content);
+        DetailPostResponse detailPostResponse = postService.getPostDetail(id);
         ApiResponse<DetailPostResponse> successApi = ApiResponse.<DetailPostResponse>builder()
                 .result(detailPostResponse)
                 .resultCode(HttpStatus.OK.value())
