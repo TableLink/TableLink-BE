@@ -11,7 +11,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class DetailPostResponse {
-    private Long id; // 게시글 id
+
+    private Long postId; // 게시글 id
     private String title; // 게시글 제목
     private String author; // 게시글 작성자 닉네임
     private Content content; // 게시글 내용
@@ -19,10 +20,11 @@ public class DetailPostResponse {
 
     public static DetailPostResponse toDto(Post post, Content content){
         return DetailPostResponse.builder()
-                .id(post.getId())
+                .postId(post.getId())
                 .title(post.getTitle())
                 .author(post.getAuthor().getNickname())
-                .content(content)
+                .boardName(post.getBoard().getBoardName())
+                .contentData(content.getData())
                 .createdAt(post.getCreatedAt())
                 .build();
     }

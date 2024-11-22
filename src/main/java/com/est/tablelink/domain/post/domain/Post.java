@@ -15,6 +15,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,7 +70,9 @@ public class Post extends BaseEntity {
         }
     }
 
-    public void setContent(Content content) {
-        this.content = content;
-    }
+//    // 게시글 내용 추가
+//    public void addContent(Content content) {
+//        this.content(content);
+//        content.setPost(this);
+//    }
 }

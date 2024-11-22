@@ -40,13 +40,10 @@ public class PostService {
 
         User user = userRepository.findById(user_id)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자 입니다."));
-        Board board = boardRepository.findById(createPostRequest.getBoard())
+        Board board = boardRepository.findById(createPostRequest.getBoardId())
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 게시판 입니다."));
-        if (user == null) {
-            throw new IllegalStateException("User is nullish.");
-        }
-        Post post = createPostRequest.toEntity(user, board);
 
+        Post post = createPostRequest.toEntity(user, board);
         postRepository.save(post);
         // 콘텐츠 데이터 추가 및 저장
         Content content = Content.builder()

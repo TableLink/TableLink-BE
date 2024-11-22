@@ -71,7 +71,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(successApi);
     }
 
-    @GetMapping("/{id}")
+    /*@GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<DetailPostResponse>> getPostDetail(
             @PathVariable Long id) {
@@ -82,5 +82,5 @@ public class PostController {
                 .resultMsg("게시글 상세 불러오기 성공")
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(successApi);
-    }
+    }*/
 }
