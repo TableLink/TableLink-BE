@@ -48,25 +48,32 @@ public class PostService {
         Post post = createPostRequest.toEntity(user, board);
 
         postRepository.save(post);
-        if (createPostRequest.getContentText() != null || createPostRequest.getContentImage() != null) {
+        // 콘텐츠 데이터 추가 및 저장
+        Content content = Content.builder()
+                .text(createPostRequest.getContentText())
+                .post(post)
+                .build();
+        contentRepository.save(content);
+        /*if (createPostRequest.getContentText() != null) {
             // 게시글에 이미 Content가 있는지 확인
             if (contentRepository.existsByPost(post)) {
                 throw new IllegalArgumentException("이미 Content가 존재합니다.");
             }
             Content content = Content.builder()
                     .text(createPostRequest.getContentText())
-                    .image(createPostRequest.getContentImage())
                     .post(post)
                     .build();
             contentRepository.save(content);
         }
         String contentText =
                 createPostRequest.getContentText() != null ? createPostRequest.getContentText()
-                        : createPostRequest.getContentImage();
-        return DetailPostResponse.toDto(post, contentText);
+                        : createPostRequest.getContentImage();*/
+        return DetailPostResponse.toDto(post, content);
     }
 
-    // 게시글 리스트 조회 불러오기 메서드
+    /**
+     *  게시글 리스트 조회 불러오기 메서드
+     * */
     @Transactional(readOnly = true)
     public List<SummaryPostResponse> getPostList(Long boardId) {
 
@@ -80,10 +87,16 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    // 게시글 상세 불러오기
+    /**
+     * 게시글 상세 불러오기
+     * **/
     @Transactional(readOnly = true)
-    public DetailPostResponse getPostDetail(Long id, String content) {
-        Post post = getPost(id);
+    public DetailPostResponse getPostDetail(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
+        Content content = contentRepository.findByPostId(post)
+                .orElseThrow(() -> new IllegalArgumentException("게시글의 내용이 존재하지 않습니다."));
+
         return DetailPostResponse.toDto(post, content);
     }
 

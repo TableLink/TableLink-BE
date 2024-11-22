@@ -30,8 +30,8 @@ public class CreatePostRequest {
     @NotBlank(message = "내용을 작성해 주세요.")
     private String contentText;
 
-    @NotBlank(message = "내용을 작성해 주세요.")
-    private String contentImage;
+//    @NotBlank(message = "내용을 작성해 주세요.")
+//    private String contentImage;
 
     public Post toEntity(User user, Board board) {
         return Post.builder()
