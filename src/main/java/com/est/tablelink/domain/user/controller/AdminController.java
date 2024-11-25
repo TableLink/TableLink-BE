@@ -4,6 +4,7 @@ import com.est.tablelink.domain.user.domain.User;
 import com.est.tablelink.domain.user.dto.request.admin.SignUpAdminRequest;
 import com.est.tablelink.domain.user.dto.request.user.SignInUserRequest;
 import com.est.tablelink.domain.user.dto.response.AdminResponse;
+import com.est.tablelink.domain.user.dto.response.UserResponse;
 import com.est.tablelink.domain.user.service.AdminService;
 import com.est.tablelink.domain.user.service.UserService;
 import com.est.tablelink.domain.user.util.Role;
@@ -17,12 +18,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,7 +39,7 @@ public class AdminController {
     private final UserService userService;
     private final AdminService adminService;
 
-    // 회원가입
+    // 관리자 회원가입
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "관리자가 회원가입 할 때 사용하는 API")
     @ApiResponses(value = {
@@ -63,23 +67,23 @@ public class AdminController {
                     .resultMsg("이미 사용중인 닉네임 입니다")
                     .build();
             result = ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
-        }else {
+        } else {
             signUpAdminRequest.setRole(Role.ADMIN);
             User createdAdmin = userService.createdAdmin(signUpAdminRequest);
             AdminResponse adminResponse = AdminResponse.toDto(createdAdmin);
-            ApiResponse<AdminResponse> errorResponse = ApiResponse.<AdminResponse>builder()
+            ApiResponse<AdminResponse> successResponse = ApiResponse.<AdminResponse>builder()
                     .result(adminResponse)
                     .resultCode(HttpStatus.OK.value())
                     .resultMsg("회원가입 성공")
                     .build();
-            result = ResponseEntity.status(HttpStatus.OK).body(errorResponse);
+            result = ResponseEntity.status(HttpStatus.OK).body(successResponse);
         }
         return result;
     }
 
-    // 로그인
+    // 관리자 로그인
     @PostMapping("/signin")
-    @Operation(summary = "로그인", description = "일반 사용자가 로그인 할 때 사용하는 API")
+    @Operation(summary = "로그인", description = "관리자가 로그인 할 때 사용하는 API")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "로그인 성공",
                     content = @Content(schema = @Schema(implementation = Map.class))),
@@ -87,17 +91,36 @@ public class AdminController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패: 잘못된 사용자명 또는 비밀번호",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자가 로그인 하려할때",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "일반 사용자가 로그인 하려할때",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<ApiResponse<Map<String, String>>> signinUser(
+    public ResponseEntity<ApiResponse<Map<String, String>>> signinAdmin(
             @Valid @RequestBody SignInUserRequest signInUserRequest) {
         Map<String, String> tokens = userService.signinAdmin(signInUserRequest);
-        ApiResponse<Map<String, String>> apiResponse = ApiResponse.<Map<String, String>>builder()
+        ApiResponse<Map<String, String>> successResponse = ApiResponse.<Map<String, String>>builder()
                 .result(tokens)
                 .resultCode(HttpStatus.OK.value())
                 .resultMsg("로그인 성공")
                 .build();
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.ok(successResponse);
     }
+
+    // 회원정보 리스트
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> getUserPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword
+    ){
+        Page<UserResponse> userResponsePage = adminService.getUserPage(page, size, keyword);
+
+        ApiResponse<Page<UserResponse>> successResponse = ApiResponse.<Page<UserResponse>>builder()
+                .result(userResponsePage)
+                .resultCode(HttpStatus.OK.value())
+                .resultMsg("회원 정보 불러오기 성공")
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(successResponse);
+    }
+
+    
 }
