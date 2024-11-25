@@ -11,8 +11,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -60,27 +64,19 @@ public class PostController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "게시글 조회 성공"
                     , content = @Content(schema = @Schema(implementation = SummaryPostResponse.class)))
     })
-    public ResponseEntity<ApiResponse<List<SummaryPostResponse>>> getPostList(
-            @PathVariable Long boardId) {
-        List<SummaryPostResponse> summaryPostResponseList = postService.getPostList(boardId);
-        ApiResponse<List<SummaryPostResponse>> successApi = ApiResponse.<List<SummaryPostResponse>>builder()
+    public ResponseEntity<ApiResponse<Page<SummaryPostResponse>>> getPostList(
+            @PathVariable Long boardId,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        Page<SummaryPostResponse> summaryPostResponseList = postService.getPostList(boardId, keyword, pageable);
+        ApiResponse<Page<SummaryPostResponse>> successApi = ApiResponse.<Page<SummaryPostResponse>>builder()
                 .result(summaryPostResponseList)
                 .resultCode(HttpStatus.OK.value())
                 .resultMsg("게시글 리스트 불러오기 성공")
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(successApi);
     }
-
-    /*@GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<DetailPostResponse>> getPostDetail(
-            @PathVariable Long id) {
-        DetailPostResponse detailPostResponse = postService.getPostDetail(id);
-        ApiResponse<DetailPostResponse> successApi = ApiResponse.<DetailPostResponse>builder()
-                .result(detailPostResponse)
-                .resultCode(HttpStatus.OK.value())
-                .resultMsg("게시글 상세 불러오기 성공")
-                .build();
-        return ResponseEntity.status(HttpStatus.OK).body(successApi);
-    }*/
 }
