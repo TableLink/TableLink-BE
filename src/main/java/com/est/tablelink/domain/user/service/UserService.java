@@ -205,7 +205,7 @@ public class UserService {
 
     // 토큰 생성
     private Map<String, String> generateTokens(User user) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
 
         // Access Token과 Refresh Token 생성
         String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
@@ -217,6 +217,8 @@ public class UserService {
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
+        tokens.put("role", String.valueOf(userDetails.getUserResponse().getRole()));
+        tokens.put("nickname", userDetails.getUserResponse().getNickname());
 
         return tokens;
     }

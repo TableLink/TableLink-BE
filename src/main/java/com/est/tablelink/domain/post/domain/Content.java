@@ -26,9 +26,9 @@ public class Content {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "data")
+    @Column(name = "text")
     @Lob
-    private String data; // 글
+    private String text; // 글
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)

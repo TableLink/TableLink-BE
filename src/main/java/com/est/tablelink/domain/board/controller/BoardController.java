@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +44,7 @@ public class BoardController {
                     , content = @Content(schema = @Schema(implementation = BoardResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "중복된 게시판 이름"
                     , content = @Content(schema = @Schema(implementation = BoardResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "인증되지 않은 사용자"
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자가 아닌 사용자의 요청"
                     , content = @Content(schema = @Schema(implementation = BoardResponse.class))),
     })
     public ResponseEntity<ApiResponse<BoardResponse>> createBoard(

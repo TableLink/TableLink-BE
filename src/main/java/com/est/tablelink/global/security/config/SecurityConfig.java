@@ -51,6 +51,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/api/user")
                         .hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/board/**")
+                        .hasRole("ADMIN")
                         .anyRequest().authenticated());
         http
                 .logout(logout -> logout
