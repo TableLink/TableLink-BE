@@ -17,6 +17,8 @@ import java.util.NoSuchElementException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,18 +36,24 @@ public class PostService {
      * 게시글 생성 메서드
      */
     @Transactional
-    public DetailPostResponse createPost(CreatePostRequest createPostRequest) {
+    public DetailPostResponse createPost(CreatePostRequest createPostRequest, Long boardId) {
         // 사용자 정보 확인
-        CustomUserDetails userDetails = (CustomUserDetails) userService.getAuthentication().getPrincipal();
-        User user = userRepository.findById(userDetails.getId())
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
 
         // 게시판 확인
-        Board board = boardRepository.findById(createPostRequest.getBoard())
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 게시판입니다."));
 
-        // 게시글 저장
-        Post post = createPostRequest.toEntity(user, board);
+        // Post 엔티티 생성
+        Post post = Post.builder()
+                .title(createPostRequest.getTitle())
+                .author(user) // 작성자
+                .board(board) // 게시판
+                .build();
+
         postRepository.save(post);
 
         // 콘텐츠 저장
