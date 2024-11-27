@@ -11,7 +11,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/post")
@@ -48,8 +51,10 @@ public class PostController {
 
     })
     public ResponseEntity<ApiResponse<DetailPostResponse>> createPost(
-            @RequestBody CreatePostRequest createPostRequest) {
-        DetailPostResponse detailPostResponse = postService.createPost(createPostRequest);
+            @RequestBody @Valid CreatePostRequest createPostRequest,
+            @RequestParam Long boardId) {
+        log.info("요청 데이터: {}", createPostRequest);
+        DetailPostResponse detailPostResponse = postService.createPost(createPostRequest, boardId);
         ApiResponse<DetailPostResponse> successApi = ApiResponse.<DetailPostResponse>builder()
                 .result(detailPostResponse)
                 .resultCode(HttpStatus.CREATED.value())

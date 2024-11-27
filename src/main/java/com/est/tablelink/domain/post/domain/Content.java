@@ -35,14 +35,9 @@ public class Content {
     @JsonBackReference
     private Post post;  // 게시글과 1:1 관계
 
-//    @Lob
-//    @Column(name = "image")
-//    private String image; // 이미지 데이터
-
     @Builder
     public Content(String text, Post post){
         this.text = text;
         this.post = post;
-//        this.image = image;
     }
 }

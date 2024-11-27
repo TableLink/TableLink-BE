@@ -10,6 +10,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,9 +37,14 @@ public class RefreshToken {
     @JoinColumn(name = "username", nullable = false, referencedColumnName = "username")
     private User user;
 
+    @Column(name = "expirationTime")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date expirationTime;
+
     @Builder
-    public RefreshToken(String refreshTokenValue, User user){
+    public RefreshToken(String refreshTokenValue, User user, Date expirationTime){
         this.refreshTokenValue = refreshTokenValue;
         this.user = user;
+        this.expirationTime = expirationTime;
     }
 }

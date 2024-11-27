@@ -14,6 +14,7 @@ import com.est.tablelink.global.security.provider.JwtTokenProvider;
 import com.est.tablelink.global.security.service.CustomUserDetails;
 import com.est.tablelink.global.security.service.CustomUserDetailsService;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,10 +175,13 @@ public class UserService {
 
     // db에 토큰 저장
     private void saveRefreshToken(User user, String refreshToken) {
+        // Refresh Token의 만료시간을 계산 (예: 현재 시간 + 리프레시 토큰 만료 시간)
+        Date expirationDate = new Date(System.currentTimeMillis() + jwtTokenProvider.getRefreshExpirationTime());
         // Refresh Token 저장 로직 (예: Repository를 사용하여 DB에 저장)
         RefreshToken token = RefreshToken.builder()
                 .refreshTokenValue(refreshToken)
                 .user(user)
+                .expirationTime(expirationDate)
                 .build();
         refreshTokenRepository.save(token);
     }
