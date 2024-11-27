@@ -1,6 +1,7 @@
 package com.est.tablelink.global.security.filter;
 
 import com.est.tablelink.global.security.provider.JwtTokenProvider;
+import com.est.tablelink.global.security.service.CustomUserDetails;
 import com.est.tablelink.global.security.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -58,13 +59,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // 토큰이 존재하고, 시큐리티 컨텍스트에 인증 정보가 없는 경우 처리
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(username);
 
             // 토큰이 유효한 경우, 시큐리티 컨텍스트에 인증 정보 설정
-            if (jwtTokenProvider.validateToken(token, userDetails)) {
+            if (jwtTokenProvider.validateToken(token, customUserDetails)) {
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null,
-                                userDetails.getAuthorities());
+                        new UsernamePasswordAuthenticationToken(customUserDetails, null,
+                                customUserDetails.getAuthorities());
                 authentication.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
