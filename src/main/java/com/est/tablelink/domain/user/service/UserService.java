@@ -13,6 +13,7 @@ import com.est.tablelink.domain.user.util.Role;
 import com.est.tablelink.global.security.provider.JwtTokenProvider;
 import com.est.tablelink.global.security.service.CustomUserDetails;
 import com.est.tablelink.global.security.service.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -58,6 +60,7 @@ public class UserService {
     }
 
     // 관리자 회원가입 메서드
+    @Transactional
     public User createdAdmin(SignUpAdminRequest signUpAdminRequest) {
         User user = signUpAdminRequest.toEntity();
         user.encodePassword(passwordEncoder.encode(user.getPassword()));
@@ -86,22 +89,28 @@ public class UserService {
 
     // 일반 사용자 로그인 메서드
     @Transactional
-    public Map<String, String> signinUser(SignInUserRequest signInUserRequest) {
+    public Map<String, String> signinUser(SignInUserRequest signInUserRequest, HttpServletResponse response) {
         User user = getUser(signInUserRequest.getUsername());
         validatePassword(signInUserRequest.getPassword(), user);
         validateRole(user, Role.ADMIN);
+        Map<String, String> tokens = generateTokens(user);
 
-        return generateTokens(user);
+        setRefreshTokenCookie(response, tokens.get("refreshToken"));
+        setAccessTokenTokenCookie(response, tokens.get("accessToken"));
+        return tokens;
     }
 
     // 관리자 로그인 메서드
     @Transactional
-    public Map<String, String> signinAdmin(SignInUserRequest signInUserRequest) {
+    public Map<String, String> signinAdmin(SignInUserRequest signInUserRequest, HttpServletResponse response) {
         User user = getUser(signInUserRequest.getUsername());
         validatePassword(signInUserRequest.getPassword(), user);
         validateRole(user, Role.USER);
+        Map<String, String> tokens = generateTokens(user);
 
-        return generateTokens(user);
+        setRefreshTokenCookie(response, tokens.get("refreshToken"));
+        setAccessTokenTokenCookie(response, tokens.get("accessToken"));
+        return tokens;
     }
 
     /**
@@ -225,6 +234,30 @@ public class UserService {
         tokens.put("nickname", userDetails.getUserResponse().getNickname());
 
         return tokens;
+    }
+
+    // refreshToken 쿠키 설정 메서드
+    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        ResponseCookie responseCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(false) // 로컬 개발환경
+                .path("/")
+                .maxAge(24 * 60 * 60) // 1일
+                .sameSite("None")
+                .build();
+        response.addHeader("Set-Cookie", responseCookie.toString());
+    }
+
+    // accessToken 쿠키 설정 메서드
+    private void setAccessTokenTokenCookie(HttpServletResponse response, String accessToken) {
+        ResponseCookie responseCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(false) // 로컬 개발환경
+                .path("/")
+                .maxAge( 30 * 60) // 30분
+                .sameSite("None")
+                .build();
+        response.addHeader("Set-Cookie", responseCookie.toString());
     }
 
     // 사용자 상세 정보 불러오기

@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -95,8 +96,8 @@ public class AdminController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<ApiResponse<Map<String, String>>> signinAdmin(
-            @Valid @RequestBody SignInUserRequest signInUserRequest) {
-        Map<String, String> tokens = userService.signinAdmin(signInUserRequest);
+            @Valid @RequestBody SignInUserRequest signInUserRequest, HttpServletResponse response) {
+        Map<String, String> tokens = userService.signinAdmin(signInUserRequest, response);
         ApiResponse<Map<String, String>> successResponse = ApiResponse.<Map<String, String>>builder()
                 .result(tokens)
                 .resultCode(HttpStatus.OK.value())
@@ -121,6 +122,4 @@ public class AdminController {
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(successResponse);
     }
-
-    
 }

@@ -1,8 +1,10 @@
 package com.est.tablelink.global.security.provider;
 
 import com.est.tablelink.domain.token.service.InvalidTokenException;
+import com.est.tablelink.domain.token.service.TokenService;
 import com.est.tablelink.global.security.service.CustomUserDetails;
 import com.est.tablelink.global.security.service.CustomUserDetailsService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Component;
 public class JwtTokenProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
+    private final TokenService tokenService;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -60,7 +63,7 @@ public class JwtTokenProvider {
      * 지정된 사용자에 대해 access 토큰을 생성합니다.
      * 사용자 정보가 CustomUserDetails 인스턴스일 경우, 사용자 권한도 토큰에 포함됩니다.
      *
-     * @param userDetails access 토큰을 생성할 사용자 정보
+     * @param customUserDetails access 토큰을 생성할 사용자 정보
      * @return 생성된 access 토큰
      */
     public String generateAccessToken(CustomUserDetails customUserDetails) {
@@ -125,8 +128,41 @@ public class JwtTokenProvider {
      * @return 토큰이 유효하면 true, 그렇지 않으면 false
      */
     public boolean validateToken(String token, CustomUserDetails customUserDetails) {
-        String username = getUsernameFromToken(token);
-        return username.equals(customUserDetails.getUsername()) && !isTokenExpired(token);
+        try {
+            // 토큰 서명 및 파싱
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // 사용자 이름 확인
+            String username = claims.getSubject();
+            if (!username.equals(customUserDetails.getUsername())) {
+                return false;
+            }
+
+            // 만료 체크
+            if (claims.getExpiration().before(new Date())) {
+                return false;
+            }
+
+            // 필요 시 추가 검증 (예: DB와 비교)
+            if (!tokenService.isTokenValid(token, username)) {
+                return false;
+            }
+
+            return true;
+
+        } catch (JwtException e) {
+            // JWT 관련 예외 처리
+            System.out.println("Invalid token: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            // 기타 예외 처리
+            System.out.println("Unexpected error: " + e.getMessage());
+            return false;
+        }
     }
 
     /**
