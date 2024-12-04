@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/post")
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "https://localhost:8081")
 @Tag(name = "Post Controller", description = "게시글 관련 API")
 public class PostController {
 

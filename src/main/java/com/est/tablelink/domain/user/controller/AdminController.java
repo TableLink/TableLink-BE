@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "https://localhost:8081")
 @RequiredArgsConstructor
 @Tag(name = "Admin Controller", description = "어드민 관련 API")
 public class AdminController {

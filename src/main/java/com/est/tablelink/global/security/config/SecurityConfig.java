@@ -6,6 +6,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,6 +29,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final Environment environment;
     private final JwtRequestFilter jwtRequestFilter;
 
     @Bean
@@ -73,7 +76,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.addAllowedOrigin("http://localhost:8081"); // 클라이언트의 origin 설정
+
+        String allowedOrigin = environment.getProperty("CORS_ALLOWED_ORIGIN", "https://localhost:8081");
+        configuration.addAllowedOrigin(allowedOrigin);
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
 

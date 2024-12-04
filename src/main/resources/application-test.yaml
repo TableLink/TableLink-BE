@@ -42,12 +42,4 @@ springdoc:
   paths-to-match:
     - /api/** # swagger-ui에 표시할 api의 엔드포인트 패턴
 
-server:
-  ssl:
-    enabled: true
-    key-password: whwnsgh0258  # 키 비밀번호
-    key-store-type: PKCS12  # 키 저장소 타입
-    key-store: classpath:server.p12  # 키 저장소 경로
-    key-alias: 1  # 키 저장소에 저장된 키의 별칭
-    key-store-password: whwnsgh0258
-  port: 443  # HTTPS 포트 설정
+

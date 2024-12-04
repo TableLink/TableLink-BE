@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/token")
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "https://localhost:8081")
 @Tag(name = "Token Controller", description = "토큰 관련 API")
 public class TokenController {
 

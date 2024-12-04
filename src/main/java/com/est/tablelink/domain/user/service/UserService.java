@@ -244,6 +244,7 @@ public class UserService {
                 .path("/")
                 .maxAge(24 * 60 * 60) // 1일
                 .sameSite("None")
+                .domain("localhost")
                 .build();
         response.addHeader("Set-Cookie", responseCookie.toString());
     }
@@ -256,6 +257,7 @@ public class UserService {
                 .path("/")
                 .maxAge( 30 * 60) // 30분
                 .sameSite("None")
+                .domain("localhost")
                 .build();
         response.addHeader("Set-Cookie", responseCookie.toString());
     }

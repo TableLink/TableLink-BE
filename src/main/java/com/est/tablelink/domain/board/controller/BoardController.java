@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/board")
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "https://localhost:8081")
 @AllArgsConstructor
 @Tag(name = "Board Controller", description = "게시판 관련 API")
 public class BoardController {
